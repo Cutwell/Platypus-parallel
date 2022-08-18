@@ -4,8 +4,10 @@
 .settings/
 .eggs/
 Platypus.egg-info/
-Platypus_Opt.egg-info/
+Platypus_Opt_Parallel.egg-info/
 build/
 dist/
 private/
 .ipynb_checkpoints/
+__pycache__/
+.pytest_cache/
