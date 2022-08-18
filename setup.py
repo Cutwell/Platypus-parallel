@@ -8,9 +8,9 @@ setup(name='Platypus-Opt-Parallel',
       author='David Hadka, Zachary Smith',
       author_email='zachsmith.dev@gmail.com',
       license="GNU GPL version 3",
-      url='https://github.com/Cutwell/Platypus-parallel',
+      url='https://github.com/Cutwell/platypusparallel',
       packages=['platypusparallel'],
-      install_requires=['six'],
+      install_requires=['six', 'joblib'],
       tests_require=['pytest', 'mock'],
       python_requires='>=3.6'
      )

@@ -25,9 +25,13 @@ or our [online documentation](http://platypus.readthedocs.org/en/latest/index.ht
 To install the latest development version of Platypus, run the following commands:
 
 ```
-    git clone https://github.com/Cutwell/Platypus-parallel.git
-    cd Platypus-parallel
+    git clone https://github.com/Cutwell/platypusparallel.git
+    cd platypusparallel
     python setup.py install
+```
+
+```python
+import platypusparallel
 ```
 
 ## License
