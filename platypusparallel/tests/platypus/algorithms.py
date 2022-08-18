@@ -41,10 +41,6 @@ from .tools import DistanceMatrix, choose, point_line_dist, lsolve,\
 from .weights import random_weights, chebyshev, normal_boundary_weights
 from .config import default_variator, default_mutator
 
-from joblib import Parallel, delayed
-import multiprocessing
-from itertools import chain
-
 try:
     set
 except NameError:
@@ -117,16 +113,14 @@ class GeneticAlgorithm(SingleObjectiveAlgorithm):
             
         self.population = sorted(self.population, key=functools.cmp_to_key(self.comparator))
         self.fittest = self.population[0] 
-    
-    def offspring(self):
-        parents = self.selector.select(self.variator.arity, self.population)
-        return self.variator.evolve(parents)
-
-    def iterate(self):
-        num_cores = multiprocessing.cpu_count()
-        offspring = Parallel(n_jobs=num_cores)(delayed(self.offspring)() for _ in range(0, self.offspring_size))
-        offspring = list(chain(*offspring))
         
+    def iterate(self):
+        offspring = []
+        
+        while len(offspring) < self.offspring_size:
+            parents = self.selector.select(self.variator.arity, self.population)
+            offspring.extend(self.variator.evolve(parents))
+            
         self.evaluate_all(offspring)
 
         offspring.append(self.fittest)
@@ -154,16 +148,14 @@ class EvolutionaryStrategy(SingleObjectiveAlgorithm):
         
         if self.variator is None:
             self.variator = default_mutator(self.problem)
-    
-    def offspring(self, i):
-        parents = [self.population[i % len(self.population)]]
-        return self.variator.evolve(parents)
-
-    def iterate(self):
-        num_cores = multiprocessing.cpu_count()
-        offspring = Parallel(n_jobs=num_cores)(delayed(self.offspring)(i) for i in range(0, self.offspring_size))
-        offspring = list(chain(*offspring))
         
+    def iterate(self):
+        offspring = []
+        
+        for i in range(self.offspring_size):
+            parents = [self.population[i % len(self.population)]]
+            offspring.extend(self.variator.evolve(parents))
+            
         self.evaluate_all(offspring)
             
         offspring.extend(self.population)
@@ -203,16 +195,14 @@ class NSGAII(AbstractGeneticAlgorithm):
         
         if self.variator is None:
             self.variator = default_variator(self.problem)
-    
-    def offspring(self):
-        parents = self.selector.select(self.variator.arity, self.population)
-        return self.variator.evolve(parents)
-
+        
     def iterate(self):
-        num_cores = multiprocessing.cpu_count()
-        offspring = Parallel(n_jobs=num_cores)(delayed(self.offspring)() for _ in range(0, self.population_size))
-        offspring = list(chain(*offspring))
-
+        offspring = []
+        
+        while len(offspring) < self.population_size:
+            parents = self.selector.select(self.variator.arity, self.population)
+            offspring.extend(self.variator.evolve(parents))
+            
         self.evaluate_all(offspring)
         
         offspring.extend(self.population)
@@ -266,7 +256,7 @@ class EpsMOEA(AbstractGeneticAlgorithm):
         for child in children:
             self._add_to_population(child)
             self.archive.add(child)
-        
+            
     def _add_to_population(self, solution):
         dominates = []
         dominated = False
@@ -324,15 +314,13 @@ class GDE3(AbstractGeneticAlgorithm):
         
         if self.variator is None:
             self.variator = default_variator(self.problem)   
-
-    def offspring(self, i):
-        parents = self.select(i, self.variator.arity)
-        return self.variator.evolve(parents)
-
+           
     def iterate(self):
-        num_cores = multiprocessing.cpu_count()
-        offspring = Parallel(n_jobs=num_cores)(delayed(self.offspring)(i) for i in range(0, self.population_size))
-        offspring = list(chain(*offspring))
+        offspring = []
+        
+        for i in range(self.population_size):
+            parents = self.select(i, self.variator.arity)
+            offspring.extend(self.variator.evolve(parents))
             
         self.evaluate_all(offspring)
         self.population = self.survival(offspring)
@@ -412,16 +400,14 @@ class SPEA2(AbstractGeneticAlgorithm):
         
         if self.variator is None:
             self.variator = default_variator(self.problem)
-    
-    def offspring(self):
-        parents = self.selection.select(self.variator.arity, self.population)
-        return self.variator.evolve(parents)
-
+         
     def iterate(self):
-        num_cores = multiprocessing.cpu_count()
-        offspring = Parallel(n_jobs=num_cores)(delayed(self.offspring)() for _ in range(0, self.population_size))
-        offspring = list(chain(*offspring))
-        
+        offspring = []
+         
+        while len(offspring) < self.population_size:
+            parents = self.selection.select(self.variator.arity, self.population)
+            offspring.extend(self.variator.evolve(parents))
+             
         self.evaluate_all(offspring)
          
         offspring.extend(self.population)
@@ -787,17 +773,13 @@ class NSGAIII(AbstractGeneticAlgorithm):
         if self.variator is None:
             self.variator = default_variator(self.problem)
     
-    def offspring(self):
-        parents = self.selector.select(self.variator.arity, self.population)
-        offspring = self.variator.evolve(parents)
-
-        return offspring
-
     def iterate(self):
-        num_cores = multiprocessing.cpu_count()
-        offspring = Parallel(n_jobs=num_cores)(delayed(self.offspring)() for _ in range(0, self.population_size))
-        offspring = list(chain(*offspring))
-
+        offspring = []
+        
+        while len(offspring) < self.population_size:
+            parents = self.selector.select(self.variator.arity, self.population)
+            offspring.extend(self.variator.evolve(parents))
+            
         self.evaluate_all(offspring)
         
         offspring.extend(self.population)
@@ -1345,15 +1327,13 @@ class IBEA(AbstractGeneticAlgorithm):
         
         if self.variator is None:
             self.variator = default_variator(self.problem)
-    
-    def offspring(self):
-        parents = self.selector.select(self.variator.arity, self.population)
-        return self.variator.evolve(parents)
-
+        
     def iterate(self):
-        num_cores = multiprocessing.cpu_count()
-        offspring = Parallel(n_jobs=num_cores)(delayed(self.offspring)() for _ in range(0, self.population_size))
-        offspring = list(chain(*offspring))
+        offspring = []
+        
+        while len(offspring) < self.population_size:
+            parents = self.selector.select(self.variator.arity, self.population)
+            offspring.extend(self.variator.evolve(parents))
             
         self.evaluate_all(offspring)
         
@@ -1482,17 +1462,16 @@ class PESA2(AbstractGeneticAlgorithm):
         
         if self.variator is None:
             self.variator = default_variator(self.problem)
-    
-    def offspring(self, selector):
-        parents = selector.select(self.variator.arity, self.archive)
-        return self.variator.evolve(parents)
-
+           
     def iterate(self):
+        self.population = []
+        
         selector = RegionBasedSelector(self.archive, self.map_grid())
-
-        num_cores = multiprocessing.cpu_count()
-        self.population = Parallel(n_jobs=num_cores)(delayed(self.offspring)(selector) for _ in range(0, self.population_size))
-        self.population = list(chain(*self.population))
+        
+        while len(self.population) < self.population_size:
+            parents = selector.select(self.variator.arity, self.archive)
+            offspring = self.variator.evolve(parents)
+            self.population.extend(offspring)
             
         self.evaluate_all(self.population)
         self.archive.extend(self.population)
