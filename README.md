@@ -1,9 +1,13 @@
-# Platypus
+# Platypus-Parallel
 
-<a href="https://github.com/Project-Platypus/Platypus"><img alt="GitHub Actions status" src="https://github.com/Project-Platypus/Platypus/workflows/Tests/badge.svg?branch=master&event=push"></a>
+<a href="https://github.com/Cutwell/Platypus-parallel"><img alt="GitHub Actions status" src="https://github.com/Cutwell/Platypus-parallel/workflows/Tests/badge.svg?branch=master&event=push"></a>
 [![Documentation Status](https://readthedocs.org/projects/platypus/badge/?version=latest)](http://platypus.readthedocs.org/en/latest/?badge=latest)
 
-### What is Platypus?
+## What's new?
+* Offspring generation and evaluation is parallelized using `asyncio` library, speeding up execution.
+* Acts as a drop-in replacement to existing `Platypus-Opt` projects.
+
+## What is Platypus?
 
 Platypus is a framework for evolutionary computing in Python with a focus on
 multiobjective evolutionary algorithms (MOEAs).  It differs from existing
@@ -14,33 +18,15 @@ OMOPSO, SMPSO, and Epsilon-NSGA-II.  For more information, see our
 [IPython Notebook](https://gist.github.com/dhadka/ba6d3c570400bdb411c3)
 or our [online documentation](http://platypus.readthedocs.org/en/latest/index.html).
 
-### Example
+## Speed-up
 
-For example, optimizing a simple biobjective problem with a single real-valued
-decision variables is accomplished in Platypus with:
+Speed-up is build into testing: there's no purpose in parallization if it has no tangible benefit.
 
-```python
+| Problem | Example | `platypus-opt` timeit | `platypus-opt-parallel` timeit | speed-up (seconds / % speed-up) |
+|:---:|:---:|:---:|:---:|:---:|
+|  |  |  |  |  |
 
-    from platypus import NSGAII, Problem, Real
-
-    def schaffer(x):
-        return [x[0]**2, (x[0]-2)**2]
-
-    problem = Problem(1, 2)
-    problem.types[:] = Real(-10, 10)
-    problem.function = schaffer
-
-    algorithm = NSGAII(problem)
-    algorithm.run(10000)
-```
-
-### Installation
-
-To install the latest Platypus release, run the following command:
-
-```
-    pip install platypus-opt
-```
+## Installation
 
 To install the latest development version of Platypus, run the following commands:
 
@@ -50,17 +36,6 @@ To install the latest development version of Platypus, run the following command
     python setup.py install
 ```
 
-#### Anaconda
-
-Platypus is also available via conda-forge. 
-
-```
-    conda config --add channels conda-forge
-    conda install platypus-opt
-```
-
-For more information see the [feedstock](https://github.com/conda-forge/platypus-opt-feedstock) located here. 
-
-### License
+## License
 
 Platypus is released under the GNU General Public License.

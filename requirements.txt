@@ -2,3 +2,4 @@ numpy
 six
 pytest
 mock
+joblib

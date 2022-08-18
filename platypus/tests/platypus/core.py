@@ -29,8 +29,6 @@ import functools
 import itertools
 from abc import ABCMeta, abstractmethod
 from .evaluator import Job
-from joblib import Parallel, delayed
-import multiprocessing
 
 LOGGER = logging.getLogger("Platypus")
 EPSILON = sys.float_info.epsilon
@@ -376,25 +374,21 @@ class Algorithm(object):
     def step(self):
         raise NotImplementedError("method not implemented")
     
-    def update_solution(self, result, unevaluated):
-        if unevaluated != result.solution:
-            unevaluated.variables[:] = result.solution.variables[:]
-            unevaluated.objectives[:] = result.solution.objectives[:]
-            unevaluated.constraints[:] = result.solution.constraints[:]
-            unevaluated.constraint_violation = result.solution.constraint_violation
-            unevaluated.feasible = result.solution.feasible
-            unevaluated.evaluated = result.solution.evaluated
-        
-        return unevaluated
-
     def evaluate_all(self, solutions):
         unevaluated = [s for s in solutions if not s.evaluated]
         
         jobs = [_EvaluateJob(s) for s in unevaluated]
         results = self.evaluator.evaluate_all(jobs)
-
-        num_cores = multiprocessing.cpu_count()
-        unevaluated = Parallel(n_jobs=num_cores)(delayed(self.update_solution)(result, unevaluated[i]) for i, result in enumerate(results))
+            
+        # if needed, update the original solution with the results
+        for i, result in enumerate(results):
+            if unevaluated[i] != result.solution:
+                unevaluated[i].variables[:] = result.solution.variables[:]
+                unevaluated[i].objectives[:] = result.solution.objectives[:]
+                unevaluated[i].constraints[:] = result.solution.constraints[:]
+                unevaluated[i].constraint_violation = result.solution.constraint_violation
+                unevaluated[i].feasible = result.solution.feasible
+                unevaluated[i].evaluated = result.solution.evaluated
         
         self.nfe += len(unevaluated)
     
@@ -894,7 +888,7 @@ class AdaptiveGridArchive(Archive):
                 self.adapt_grid()
                 
         return removed
-
+        
     def adapt_grid(self):
         self.minimum = [POSITIVE_INFINITY]*self.nobjs
         self.maximum = [-POSITIVE_INFINITY]*self.nobjs

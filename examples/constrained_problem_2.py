@@ -1,3 +1,6 @@
+import timeit
+
+setup = """
 from platypus import NSGAII, Problem, Real
 
 class Belegundu(Problem):
@@ -12,6 +15,11 @@ class Belegundu(Problem):
         y = solution.variables[1]
         solution.objectives[:] = [-2*x + y, 2*x + y]
         solution.constraints[:] = [-x + y - 1, x + y - 7]
-        
-algorithm = NSGAII(Belegundu())
-algorithm.run(10000)
+"""
+
+run = "algorithm = NSGAII(Belegundu()); algorithm.run(1000)"
+
+print("The time of execution of above program is :",
+      timeit.timeit(setup=setup,
+                    stmt=run,
+                    number=1000))

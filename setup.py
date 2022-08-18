@@ -2,13 +2,13 @@
 
 from setuptools import setup
 
-setup(name='Platypus-Opt',
-      version='1.0.4', # Update __init__.py if the version changes!
-      description='Multiobjective optimization in Python',
-      author='David Hadka',
-      author_email='dhadka@users.noreply.github.com',
+setup(name='Platypus-Opt-Parallel',
+      version='0.0.1', # Update __init__.py if the version changes!
+      description='Async Multiobjective optimization in Python',
+      author='David Hadka, Zachary Smith',
+      author_email='zachsmith.dev@gmail.com',
       license="GNU GPL version 3",
-      url='https://github.com/Project-Platypus/Platypus',
+      url='https://github.com/Cutwell/Platypus-parallel',
       packages=['platypus'],
       install_requires=['six'],
       tests_require=['pytest', 'mock'],

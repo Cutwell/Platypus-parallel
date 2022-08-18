@@ -1,5 +1,8 @@
+import timeit
+
+setup = """
 import math
-from platypus import GeneticAlgorithm, Problem, Permutation, nondominated, unique
+from platypus import GeneticAlgorithm, Problem, Permutation
 
 # The (x, y) coordinates of cities in the PR76 instance.  This instance has
 # an optimal tour length of 108159.
@@ -11,6 +14,7 @@ cities = [(3600, 2300), (3100, 3300), (4700, 5750), (5400, 5750), (5608, 7103),
         (9450, 5750), (10150, 5750), (10358, 7103), (9243, 7102), (8350, 6950),
         (7850, 7250), (9450, 8450), (10150, 8450), (10360, 10053), (9242, 10052),
         (8350, 10800), (7850, 10950), (9450, 11650), (10150, 11650), (11400, 10800),
+        
         (12050, 10950), (12050, 7250), (11400, 6950), (12050, 3300), (11400, 2300),
         (10150, 1600), (13100, 2300), (12600, 3300), (14200, 5750), (14900, 5750),
         (15108, 7103), (13993, 7102), (13100, 6950), (12600, 7250), (14200, 8450),
@@ -31,6 +35,11 @@ problem = Problem(1, 1)
 problem.types[0] = Permutation(range(len(cities)))
 problem.directions[0] = Problem.MINIMIZE
 problem.function = tsp
- 
-algorithm = GeneticAlgorithm(problem)
-algorithm.run(100000, callback = lambda a : print(a.nfe, unique(nondominated(algorithm.result))[0].objectives[0]))
+"""
+
+run = "algorithm = GeneticAlgorithm(problem); algorithm.run(100000)"
+
+print("The time of execution of above program is :",
+      timeit.timeit(setup=setup,
+                    stmt=run,
+                    number=1000))

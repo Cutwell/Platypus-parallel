@@ -1,3 +1,6 @@
+import timeit
+
+setup = """
 from platypus import GeneticAlgorithm, Problem, Permutation, nondominated, unique
 
 def ordering(x):
@@ -7,12 +10,11 @@ def ordering(x):
 problem = Problem(1, 1)
 problem.types[0] = Permutation(range(10)) # Permutation of elements [0, 1, ..., 9]
 problem.function = ordering
+"""
 
-algorithm = GeneticAlgorithm(problem)
-algorithm.run(10000)
+run = "algorithm = GeneticAlgorithm(problem); algorithm.run(1000)"
 
-for solution in unique(nondominated(algorithm.result)):
-    print(solution.variables, solution.objectives)
-    
-# Output:
-# [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]] [0]
+print("The time of execution of above program is :",
+      timeit.timeit(setup=setup,
+                    stmt=run,
+                    number=1000))

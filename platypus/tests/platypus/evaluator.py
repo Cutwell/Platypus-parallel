@@ -22,8 +22,6 @@ import time
 import logging
 import datetime
 from abc import ABCMeta, abstractmethod
-from joblib import Parallel, delayed
-import multiprocessing
 
 LOGGER = logging.getLogger("Platypus")
 
@@ -83,30 +81,24 @@ class MapEvaluator(Evaluator):
         super(MapEvaluator, self).__init__()
         self.map_func = map_func
     
-    def evaluate_job(self, chunk):
-        return self.map_func(run_job, chunk)
-    
     def evaluate_all(self, jobs, **kwargs):
         log_frequency = kwargs.get("log_frequency", None)
         
         if log_frequency is None:
-            num_cores = multiprocessing.cpu_count()
-            results = Parallel(n_jobs=num_cores)(delayed(run_job)(job) for job in jobs)
-            return results
-            #return list(self.map_func(run_job, jobs))
+            return list(self.map_func(run_job, jobs))
         else:
+            result = []
             job_name = kwargs.get("job_name", "Batch Jobs")
             start_time = time.time()
-
-            num_cores = multiprocessing.cpu_count()
-            result = Parallel(n_jobs=num_cores)(delayed(self.evaluate_job)(chunk) for chunk in _chunks(jobs, log_frequency))
-
-            LOGGER.log(logging.INFO,
-                        "%s finished; Jobs Complete: %d, Elapsed Time: %s",
-                        job_name,
-                        len(result),
-                        datetime.timedelta(seconds=time.time()-start_time))
             
+            for chunk in _chunks(jobs, log_frequency):
+                result.extend(self.map_func(run_job, chunk))
+                LOGGER.log(logging.INFO,
+                           "%s running; Jobs Complete: %d, Elapsed Time: %s",
+                           job_name,
+                           len(result),
+                           datetime.timedelta(seconds=time.time()-start_time))
+                
             return result
     
 class SubmitEvaluator(Evaluator):
@@ -114,34 +106,25 @@ class SubmitEvaluator(Evaluator):
     def __init__(self, submit_func):
         super(SubmitEvaluator, self).__init__()
         self.submit_func = submit_func
-
-    def evaluate_job(self, chunk):
-        return [f.result() for f in chunk]
-
-    def f_result(self, f):
-        return f.result()
         
     def evaluate_all(self, jobs, **kwargs):
         futures = [self.submit_func(run_job, job) for job in jobs]
         log_frequency = kwargs.get("log_frequency", None)
         
         if log_frequency is None:
-            num_cores = multiprocessing.cpu_count()
-            results = Parallel(n_jobs=num_cores)(delayed(self.f_result)(f) for f in futures)
-            return results
-            #return [f.result() for f in futures]
+            return [f.result() for f in futures]
         else:
+            result = []
             job_name = kwargs.get("job_name", "Batch Jobs")
             start_time = time.time()
-
-            num_cores = multiprocessing.cpu_count()
-            result = Parallel(n_jobs=num_cores)(delayed(self.evaluate_job)(chunk) for chunk in _chunks(futures, log_frequency))
-        
-            LOGGER.log(logging.INFO,
-                        "%s finished; Jobs Complete: %d, Elapsed Time: %s",
-                        job_name,
-                        len(result),
-                        datetime.timedelta(seconds=time.time()-start_time))
+            
+            for chunk in _chunks(futures, log_frequency):
+                result.extend([f.result() for f in chunk])
+                LOGGER.log(logging.INFO,
+                           "%s running; Jobs Complete: %d, Elapsed Time: %s",
+                           job_name,
+                           len(result),
+                           datetime.timedelta(seconds=time.time()-start_time))
                 
             return result
 
@@ -150,34 +133,25 @@ class ApplyEvaluator(Evaluator):
     def __init__(self, apply_func):
         super(ApplyEvaluator, self).__init__()
         self.apply_func = apply_func
-
-    def evaluate_job(self, chunk):
-        return [f.get() for f in chunk]
-    
-    def f_get(self, f):
-        return f.get()
-
+        
     def evaluate_all(self, jobs, **kwargs):
         futures = [self.apply_func(run_job, [job]) for job in jobs]
         log_frequency = kwargs.get("log_frequency", None)
         
         if log_frequency is None:
-            num_cores = multiprocessing.cpu_count()
-            results = Parallel(n_jobs=num_cores)(delayed(self.f_get)(f) for f in futures)
-            return results
-            #return [f.get() for f in futures]
+            return [f.get() for f in futures]
         else:
+            result = []
             job_name = kwargs.get("job_name", "Batch Jobs")
             start_time = time.time()
-
-            num_cores = multiprocessing.cpu_count()
-            result = Parallel(n_jobs=num_cores)(delayed(self.evaluate_job)(chunk) for chunk in _chunks(futures, log_frequency))
-
-            LOGGER.log(logging.INFO,
-                        "%s finished; Jobs Complete: %d, Elapsed Time: %s",
-                        job_name,
-                        len(result),
-                        datetime.timedelta(seconds=time.time()-start_time))
+            
+            for chunk in _chunks(futures, log_frequency):
+                result.extend([f.get() for f in chunk])
+                LOGGER.log(logging.INFO,
+                           "%s running; Jobs Complete: %d, Elapsed Time: %s",
+                           job_name,
+                           len(result),
+                           datetime.timedelta(seconds=time.time()-start_time))
                 
             return result
    

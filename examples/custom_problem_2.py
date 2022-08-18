@@ -1,3 +1,6 @@
+import timeit
+
+setup = """
 from platypus import NSGAII, Problem, Real
 
 class Schaffer(Problem):
@@ -9,6 +12,11 @@ class Schaffer(Problem):
     def evaluate(self, solution):
         x = solution.variables[:]
         solution.objectives[:] = [x[0]**2, (x[0]-2)**2]
+"""
 
-algorithm = NSGAII(Schaffer())
-algorithm.run(10000)
+run = "algorithm = NSGAII(Schaffer()); algorithm.run(1000)"
+
+print("The time of execution of above program is :",
+      timeit.timeit(setup=setup,
+                    stmt=run,
+                    number=1000))

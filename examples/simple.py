@@ -1,14 +1,15 @@
+import timeit
+
+setup = """
 from platypus import NSGAII, DTLZ2
 
 # define the problem definition
 problem = DTLZ2()
+"""
 
-# instantiate the optimization algorithm
-algorithm = NSGAII(problem)
+run = "algorithm = NSGAII(problem); algorithm.run(1000)"
 
-# optimize the problem using 10,000 function evaluations
-algorithm.run(10000)
-
-# display the results
-for solution in algorithm.result:
-    print(solution.objectives)
+print("The time of execution of above program is :",
+      timeit.timeit(setup=setup,
+                    stmt=run,
+                    number=1000))
